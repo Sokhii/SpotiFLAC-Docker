@@ -7,8 +7,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  # Using the lowercase function ensures Docker tags won't fail due to capitalized usernames
-  IMAGE_NAME: ${{ lowercase(github.repository_owner) }}/spotiflac
   UPSTREAM_REPO: afkarxyz/SpotiFLAC
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -22,6 +20,13 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      # This safely converts your username to lowercase using bash
+      - name: Set Lowercase Image Name Env
+        run: |
+          echo "IMAGE_NAME=${OWNER,,}/spotiflac" >> $GITHUB_ENV
+        env:
+          OWNER: ${{ github.repository_owner }}
 
       - name: Fetch Latest Upstream Version
         id: upstream
