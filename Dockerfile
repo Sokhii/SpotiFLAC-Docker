@@ -11,7 +11,6 @@ RUN apt-get update && apt-get install -y \
     curl \
     git \
     libgtk-3-dev \
-    libwebkit2gtk-4.0-dev \
     libwebkit2gtk-4.1-dev \
     libglib2.0-dev \
     libnss3-dev \
@@ -33,8 +32,8 @@ WORKDIR /build
 RUN git clone https://github.com/afkarxyz/SpotiFLAC.git . && \
     (git checkout ${SPOTIFLAC_VERSION} || (echo "Tag ${SPOTIFLAC_VERSION} not found, falling back to main branch..." && git checkout main))
 
-# Build the application
-RUN wails build -platform linux/amd64 -clean -o SpotiFLAC -ldflags "-s -w"
+# Build the application using the webkit2_41 tags for modern Debian targets
+RUN wails build -platform linux/amd64 -clean -o SpotiFLAC -tags webkit2_41 -ldflags "-s -w"
 
 # ==========================================
 # Stage 2: The Runtime (The Efficient Container)
@@ -44,11 +43,10 @@ FROM jlesage/baseimage-gui:debian-12-v4
 
 ENV APP_NAME="SpotiFLAC"
 
-# Install Runtime Dependencies
+# Install Runtime Dependencies (Removed deprecated libwebkit2gtk-4.0-37)
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     libwebkit2gtk-4.1-0 \
-    libwebkit2gtk-4.0-37 \
     libgtk-3-0 \
     libnss3 \
     libasound2 \
