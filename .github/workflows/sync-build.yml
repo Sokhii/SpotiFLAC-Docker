@@ -7,7 +7,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/spotiflac
+  # Using the lowercase function ensures Docker tags won't fail due to capitalized usernames
+  IMAGE_NAME: ${{ lowercase(github.repository_owner) }}/spotiflac
   UPSTREAM_REPO: afkarxyz/SpotiFLAC
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
