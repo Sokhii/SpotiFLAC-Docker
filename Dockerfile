@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y \
     libglib2.0-dev \
     libnss3-dev \
     libdbus-1-dev \
-    libasound2-dev \
+    libasound2-dev || apt-get install -y libasound2t64-dev \
     build-essential \
     pkg-config \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
@@ -38,20 +38,19 @@ RUN wails build -platform linux/amd64 -clean -o SpotiFLAC -tags webkit2_41 -ldfl
 # ==========================================
 # Stage 2: The Runtime (The Efficient Container)
 # ==========================================
-# FIXED: Using the specific tracking tag for Debian 12
 FROM jlesage/baseimage-gui:debian-12-v4
 
 ENV APP_NAME="SpotiFLAC"
 
-# Install Runtime Dependencies (Removed deprecated libwebkit2gtk-4.0-37)
-RUN apt-get update && apt-get install -y \
+# Install Runtime Dependencies using the mandatory baseimage 'add-pkg' script helper
+# Using a fallback condition for the modern t64 ALSA audio architecture migration
+RUN add-pkg \
     ffmpeg \
     libwebkit2gtk-4.1-0 \
     libgtk-3-0 \
     libnss3 \
-    libasound2 \
     dbus-x11 \
-    && rm -rf /var/lib/apt/lists/*
+    && (add-pkg libasound2 || add-pkg libasound2t64)
 
 WORKDIR /app
 
