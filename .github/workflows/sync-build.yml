@@ -7,7 +7,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  UPSTREAM_REPO: afkarxyz/SpotiFLAC
+  UPSTREAM_REPO: spotbye/SpotiFLAC  # <-- Updated to new developer name
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
@@ -30,8 +30,8 @@ jobs:
       - name: Fetch Latest Upstream Version
         id: upstream
         run: |
-          # Added Authorization header to prevent rate-limiting failures
-          TAG=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ env.UPSTREAM_REPO }}/releases/latest | jq -r .tag_name)
+          # Added -L flag to follow API redirections safely
+          TAG=$(curl -sL -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ env.UPSTREAM_REPO }}/releases/latest | jq -r .tag_name)
           if [ "$TAG" = "null" ] || [ -z "$TAG" ]; then TAG="main"; fi
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
