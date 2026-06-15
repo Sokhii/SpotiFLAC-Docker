@@ -21,7 +21,6 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # This safely converts your username to lowercase using bash
       - name: Set Lowercase Image Name Env
         run: |
           echo "IMAGE_NAME=${OWNER,,}/spotiflac" >> $GITHUB_ENV
@@ -31,7 +30,8 @@ jobs:
       - name: Fetch Latest Upstream Version
         id: upstream
         run: |
-          TAG=$(curl -s https://api.github.com/repos/${{ env.UPSTREAM_REPO }}/releases/latest | jq -r .tag_name)
+          # Added Authorization header to prevent rate-limiting failures
+          TAG=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ env.UPSTREAM_REPO }}/releases/latest | jq -r .tag_name)
           if [ "$TAG" = "null" ] || [ -z "$TAG" ]; then TAG="main"; fi
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
@@ -56,7 +56,6 @@ jobs:
           build-args: |
             SPOTIFLAC_VERSION=${{ steps.upstream.outputs.tag }}
 
-      # === NEW STEP: CREATE THE GITHUB RELEASE ===
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
